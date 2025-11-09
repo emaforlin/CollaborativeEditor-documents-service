@@ -32,7 +32,7 @@ func (s *DocumentService) GetUserDocuments(ownerID string) ([]models.Document, e
 }
 
 func (s *DocumentService) GetOneDocument(data dto.GetOneDocumentDTO) *models.Document {
-	document := s.repo.GetOneDocument(data.OwnerID, data.DocumentID)
+	document := s.repo.FindDocument(data.OwnerID, data.DocumentID)
 	return document
 }
 

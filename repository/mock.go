@@ -34,7 +34,7 @@ func (m *MockRepository) GetAllDocuments(ownerID string) ([]models.Document, err
 }
 
 // GetOneDocument implements DocumentRepository.
-func (m *MockRepository) GetOneDocument(ownerID string, documentID string) *models.Document {
+func (m *MockRepository) FindDocument(ownerID string, documentID string) *models.Document {
 	for _, doc := range m.documents {
 		if doc.OwnerID == ownerID && doc.ID == documentID {
 			return &doc
