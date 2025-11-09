@@ -16,7 +16,7 @@ func main() {
 	config.Load()
 	configuration := config.GetConfig()
 
-	repository := repository.NewMockRepository()
+	repository := repository.NewPostgresRepository(configuration.GetDatabaseConf())
 
 	service, err := core.NewDocumentService(repository)
 	if err != nil {

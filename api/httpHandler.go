@@ -37,7 +37,7 @@ func (h *httpHandler) createDocument(c *gin.Context) {
 	}
 
 	body.OwnerID = ownerID
-	documentID, err := h.documentService.CreateNewDocument(body)
+	documentID, err := h.documentService.CreateNewDocument(c.Request.Context(), body)
 	if err != nil {
 		// Log the error for debugging purposes
 		c.Error(err)
@@ -61,7 +61,7 @@ func (h *httpHandler) getDocuments(c *gin.Context) {
 		return
 	}
 
-	documents, err := h.documentService.GetUserDocuments(ownerID)
+	documents, err := h.documentService.GetUserDocuments(c.Request.Context(), ownerID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, httpResponseMessage{
 			Message: "failed to fetch documents",
@@ -84,7 +84,7 @@ func (h *httpHandler) getOneDocument(c *gin.Context) {
 
 	documentID := c.Param("id")
 
-	foundDoc := h.documentService.GetOneDocument(dto.GetOneDocumentDTO{
+	foundDoc := h.documentService.GetOneDocument(c.Request.Context(), dto.GetOneDocumentDTO{
 		DocumentID: documentID,
 		OwnerID:    ownerID,
 	})

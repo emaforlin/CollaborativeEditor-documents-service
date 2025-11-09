@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/emaforlin/ce-document-service/dto"
@@ -12,8 +13,8 @@ type DocumentService struct {
 	repo repository.DocumentRepository
 }
 
-func (s *DocumentService) CreateNewDocument(data dto.CreateDocumentDTO) (string, error) {
-	docID, err := s.repo.CreateDocument(models.Document{
+func (s *DocumentService) CreateNewDocument(ctx context.Context, data dto.CreateDocumentDTO) (string, error) {
+	docID, err := s.repo.CreateDocument(ctx, models.Document{
 		Title:   data.Title,
 		OwnerID: data.OwnerID,
 	})
@@ -23,16 +24,16 @@ func (s *DocumentService) CreateNewDocument(data dto.CreateDocumentDTO) (string,
 	return docID, nil
 }
 
-func (s *DocumentService) GetUserDocuments(ownerID string) ([]models.Document, error) {
-	documents, err := s.repo.GetAllDocuments(ownerID)
+func (s *DocumentService) GetUserDocuments(ctx context.Context, ownerID string) ([]models.Document, error) {
+	documents, err := s.repo.GetAllDocuments(ctx, ownerID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch user documents: %w", err)
 	}
 	return documents, nil
 }
 
-func (s *DocumentService) GetOneDocument(data dto.GetOneDocumentDTO) *models.Document {
-	document := s.repo.FindDocument(data.OwnerID, data.DocumentID)
+func (s *DocumentService) GetOneDocument(ctx context.Context, data dto.GetOneDocumentDTO) *models.Document {
+	document := s.repo.FindDocument(ctx, data.OwnerID, data.DocumentID)
 	return document
 }
 

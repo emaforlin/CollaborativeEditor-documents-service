@@ -21,7 +21,7 @@ type DatabaseConfig struct {
 	User string
 	Pass string
 	Host string
-	Port string
+	Port int
 	Name string
 }
 
@@ -66,7 +66,7 @@ func loadDatabaseConfig() DatabaseConfig {
 		User: getEnv("DB_USER", "postgres"),
 		Pass: getEnv("DB_PASS", "postgres"),
 		Host: getEnv("DB_HOST", "localhost"),
-		Port: getEnv("DB_PORT", "5432"),
+		Port: getEnvInt("DB_PORT", 5432),
 		Name: getEnv("DB_NAME", "document_service"),
 	}
 }
