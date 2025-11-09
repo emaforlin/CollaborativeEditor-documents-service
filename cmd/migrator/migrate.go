@@ -13,7 +13,10 @@ type DatabaseMigrator struct {
 }
 
 func NewMigrator(cfg config.DatabaseConfig) *DatabaseMigrator {
-	panic("unimplemented")
+	repo := repository.NewPostgresRepository(cfg)
+	return &DatabaseMigrator{
+		repo: repo,
+	}
 }
 
 // RunMigrations executes all database migrations
