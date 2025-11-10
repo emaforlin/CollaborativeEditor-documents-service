@@ -25,6 +25,7 @@ func (m *DatabaseMigrator) RunMigrations() error {
 	// Add all models that need to be migrated here
 	models := []interface{}{
 		&document.Document{},
+		&document.DocumentPermission{},
 	}
 
 	if err := m.repo.GetDB().AutoMigrate(models...); err != nil {
