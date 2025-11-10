@@ -1,4 +1,4 @@
-package api
+package internal
 
 import (
 	"context"
@@ -7,15 +7,14 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/emaforlin/ce-document-service/config"
-	"github.com/emaforlin/ce-document-service/core"
+	"github.com/emaforlin/ce-document-service/pkg/config"
 	"github.com/gin-gonic/gin"
 )
 
 type APIHTTPServer struct {
 	router  *gin.Engine
 	server  *http.Server
-	handler *httpHandler
+	handler *HTTPHandler
 }
 
 func (s *APIHTTPServer) Start(cfg config.ServerConfig) error {
@@ -45,7 +44,7 @@ func (s *APIHTTPServer) Stop() error {
 	return nil
 }
 
-func NewAPIServer(documentService *core.DocumentService) (*APIHTTPServer, error) {
+func NewAPIServer(documentService *DocumentService) (*APIHTTPServer, error) {
 	if documentService == nil {
 		return nil, fmt.Errorf("documents service cannot be nil")
 	}
@@ -53,7 +52,7 @@ func NewAPIServer(documentService *core.DocumentService) (*APIHTTPServer, error)
 	server := &APIHTTPServer{
 		router:  gin.Default(),
 		server:  &http.Server{},
-		handler: newHTTPHandler(documentService),
+		handler: NewHTTPHandler(documentService),
 	}
 	server.setupRoutes()
 	return server, nil

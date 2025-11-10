@@ -3,17 +3,16 @@ package main
 import (
 	"log"
 
-	"github.com/emaforlin/ce-document-service/config"
-	"github.com/emaforlin/ce-document-service/models"
-	"github.com/emaforlin/ce-document-service/repository"
+	document "github.com/emaforlin/ce-document-service/internal/document"
+	"github.com/emaforlin/ce-document-service/pkg/config"
 )
 
 type DatabaseMigrator struct {
-	repo *repository.PostgresDocumentRepositoryImpl
+	repo *document.PostgresDocumentRepositoryImpl
 }
 
 func NewMigrator(cfg config.DatabaseConfig) *DatabaseMigrator {
-	repo := repository.NewPostgresRepository(cfg)
+	repo := document.NewPostgresRepository(cfg)
 	return &DatabaseMigrator{
 		repo: repo,
 	}
@@ -25,7 +24,7 @@ func (m *DatabaseMigrator) RunMigrations() error {
 
 	// Add all models that need to be migrated here
 	models := []interface{}{
-		&models.Document{},
+		&document.Document{},
 	}
 
 	if err := m.repo.GetDB().AutoMigrate(models...); err != nil {

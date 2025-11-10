@@ -6,24 +6,22 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/emaforlin/ce-document-service/api"
-	"github.com/emaforlin/ce-document-service/config"
-	"github.com/emaforlin/ce-document-service/core"
-	"github.com/emaforlin/ce-document-service/repository"
+	document "github.com/emaforlin/ce-document-service/internal/document"
+	"github.com/emaforlin/ce-document-service/pkg/config"
 )
 
 func main() {
 	config.Load()
 	configuration := config.GetConfig()
 
-	repository := repository.NewPostgresRepository(configuration.GetDatabaseConf())
+	repository := document.NewPostgresRepository(configuration.GetDatabaseConf())
 
-	service, err := core.NewDocumentService(repository)
+	service, err := document.NewDocumentService(repository)
 	if err != nil {
 		log.Fatal("failed to start the service:", err)
 	}
 
-	server, err := api.NewAPIServer(service)
+	server, err := document.NewAPIServer(service)
 	if err != nil {
 		log.Fatal("failed to initialize the server:", err)
 	}

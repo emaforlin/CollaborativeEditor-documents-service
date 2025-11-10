@@ -1,4 +1,4 @@
-package dto
+package internal
 
 type CreateDocumentDTO struct {
 	Title   string `json:"title" binding:"required"`

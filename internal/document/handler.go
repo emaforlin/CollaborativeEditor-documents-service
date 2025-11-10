@@ -1,24 +1,22 @@
-package api
+package internal
 
 import (
 	"net/http"
 
-	"github.com/emaforlin/ce-document-service/core"
-	"github.com/emaforlin/ce-document-service/dto"
 	"github.com/gin-gonic/gin"
 )
 
-type httpHandler struct {
-	documentService *core.DocumentService
+type HTTPHandler struct {
+	documentService *DocumentService
 }
 
-func newHTTPHandler(service *core.DocumentService) *httpHandler {
-	return &httpHandler{
+func NewHTTPHandler(service *DocumentService) *HTTPHandler {
+	return &HTTPHandler{
 		documentService: service,
 	}
 }
 
-func (h *httpHandler) createDocument(c *gin.Context) {
+func (h *HTTPHandler) createDocument(c *gin.Context) {
 	// This will be a repeated logic, consider moving it to a middleware
 	ownerID := c.GetHeader("X-User-Id")
 	if ownerID == "" {
@@ -28,7 +26,7 @@ func (h *httpHandler) createDocument(c *gin.Context) {
 		return
 	}
 
-	var body dto.CreateDocumentDTO
+	var body CreateDocumentDTO
 	if err := c.Bind(&body); err != nil {
 		c.JSON(http.StatusBadRequest, httpResponseMessage{
 			Message: "bad request: " + err.Error(),
@@ -52,7 +50,7 @@ func (h *httpHandler) createDocument(c *gin.Context) {
 	})
 }
 
-func (h *httpHandler) getDocuments(c *gin.Context) {
+func (h *HTTPHandler) getDocuments(c *gin.Context) {
 	ownerID := c.GetHeader("X-User-Id")
 	if ownerID == "" {
 		c.JSON(http.StatusForbidden, httpResponseMessage{
@@ -73,7 +71,7 @@ func (h *httpHandler) getDocuments(c *gin.Context) {
 	})
 }
 
-func (h *httpHandler) getOneDocument(c *gin.Context) {
+func (h *HTTPHandler) getOneDocument(c *gin.Context) {
 	ownerID := c.GetHeader("X-User-Id")
 	if ownerID == "" {
 		c.JSON(http.StatusForbidden, httpResponseMessage{
@@ -84,7 +82,7 @@ func (h *httpHandler) getOneDocument(c *gin.Context) {
 
 	documentID := c.Param("id")
 
-	foundDoc := h.documentService.GetOneDocument(c.Request.Context(), dto.GetOneDocumentDTO{
+	foundDoc := h.documentService.GetOneDocument(c.Request.Context(), GetOneDocumentDTO{
 		DocumentID: documentID,
 		OwnerID:    ownerID,
 	})
