@@ -1,12 +1,11 @@
-package repository
+package internal
 
 import (
 	"context"
 	"fmt"
 	"log"
 
-	"github.com/emaforlin/ce-document-service/config"
-	"github.com/emaforlin/ce-document-service/models"
+	"github.com/emaforlin/ce-document-service/pkg/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -17,16 +16,16 @@ type PostgresDocumentRepositoryImpl struct {
 }
 
 // CreateDocument implements DocumentRepository.
-func (r *PostgresDocumentRepositoryImpl) CreateDocument(ctx context.Context, document models.Document) (string, error) {
-	if err := gorm.G[models.Document](r.db).Create(ctx, &document); err != nil {
+func (r *PostgresDocumentRepositoryImpl) CreateDocument(ctx context.Context, document Document) (string, error) {
+	if err := gorm.G[Document](r.db).Create(ctx, &document); err != nil {
 		return "", fmt.Errorf("failed to create document: %w", err)
 	}
 	return document.ID, nil
 }
 
 // FindDocument implements DocumentRepository.
-func (r *PostgresDocumentRepositoryImpl) FindDocument(ctx context.Context, ownerID string, documentID string) *models.Document {
-	document, err := gorm.G[models.Document](r.db).Where("id = ?, owner_id = ?", documentID, ownerID).First(ctx)
+func (r *PostgresDocumentRepositoryImpl) FindDocument(ctx context.Context, ownerID string, documentID string) *Document {
+	document, err := gorm.G[Document](r.db).Where("id = ?, owner_id = ?", documentID, ownerID).First(ctx)
 	if err != nil {
 		return nil
 	}
@@ -34,8 +33,8 @@ func (r *PostgresDocumentRepositoryImpl) FindDocument(ctx context.Context, owner
 }
 
 // GetAllDocuments implements DocumentRepository.
-func (r *PostgresDocumentRepositoryImpl) GetAllDocuments(ctx context.Context, ownerID string) ([]models.Document, error) {
-	documents, err := gorm.G[models.Document](r.db).Where("owner_id = ?", ownerID).Find(ctx)
+func (r *PostgresDocumentRepositoryImpl) GetAllDocuments(ctx context.Context, ownerID string) ([]Document, error) {
+	documents, err := gorm.G[Document](r.db).Where("owner_id = ?", ownerID).Find(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find documents: %w", err)
 	}

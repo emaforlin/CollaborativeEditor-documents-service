@@ -1,9 +1,8 @@
-package repository
+package internal
 
 import (
 	"time"
 
-	"github.com/emaforlin/ce-document-service/models"
 	"github.com/google/uuid"
 	"github.com/jackc/pgtype"
 )
@@ -11,11 +10,11 @@ import (
 const defaultTestDocumentJSON = `{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"This is a test document"}]}]}`
 
 type MockRepository struct {
-	documents []models.Document
+	documents []Document
 }
 
 // CreateDocument implements DocumentRepository.
-func (m *MockRepository) CreateDocument(document models.Document) (documentID string, err error) {
+func (m *MockRepository) CreateDocument(document Document) (documentID string, err error) {
 	document.ID = uuid.NewString()
 	document.Content = pgtype.JSONB{Bytes: []byte(defaultTestDocumentJSON), Status: pgtype.Present}
 	m.documents = append(m.documents, document)
@@ -23,8 +22,8 @@ func (m *MockRepository) CreateDocument(document models.Document) (documentID st
 }
 
 // GetAllDocuments implements DocumentRepository.
-func (m *MockRepository) GetAllDocuments(ownerID string) ([]models.Document, error) {
-	matchedDocs := make([]models.Document, 0)
+func (m *MockRepository) GetAllDocuments(ownerID string) ([]Document, error) {
+	matchedDocs := make([]Document, 0)
 	for _, doc := range m.documents {
 		if doc.OwnerID == ownerID {
 			matchedDocs = append(matchedDocs, doc)
@@ -34,7 +33,7 @@ func (m *MockRepository) GetAllDocuments(ownerID string) ([]models.Document, err
 }
 
 // GetOneDocument implements DocumentRepository.
-func (m *MockRepository) FindDocument(ownerID string, documentID string) *models.Document {
+func (m *MockRepository) FindDocument(ownerID string, documentID string) *Document {
 	for _, doc := range m.documents {
 		if doc.OwnerID == ownerID && doc.ID == documentID {
 			return &doc
@@ -45,7 +44,7 @@ func (m *MockRepository) FindDocument(ownerID string, documentID string) *models
 
 func NewMockRepository() *MockRepository {
 	return &MockRepository{
-		documents: []models.Document{
+		documents: []Document{
 			{
 				ID:        "mock-1",
 				OwnerID:   "mock-fake-owner-1",
