@@ -62,7 +62,22 @@ func (s *APIHTTPServer) setupRoutes() {
 	s.router.Use(gin.Logger())
 	s.router.Use(gin.Recovery())
 
-	s.router.POST("/documents", s.handler.createDocument)
-	s.router.GET("/documents", s.handler.getDocuments)
-	s.router.GET("/documents/:id", s.handler.getOneDocument)
+	// Routes that require user authentication
+	userRoutes := s.router.Group("/")
+	userRoutes.Use(UserHeaderMiddleware())
+	{
+		// Routes that only require user authentication (no document ownership check)
+		userRoutes.POST("/documents", s.handler.createDocument)
+		userRoutes.GET("/documents", s.handler.getDocuments)
+
+		// Routes that require document ownership
+		ownerRoutes := userRoutes.Group("/documents/:id")
+		ownerRoutes.Use(DocumentOwnershipMiddleware(s.handler.documentService))
+		{
+			ownerRoutes.GET("/", s.handler.getOneDocument)
+			ownerRoutes.DELETE("/collaborators", s.handler.removeDocumentCollaborator)
+			ownerRoutes.POST("/collaborators", s.handler.addDocumentCollaborator)
+			ownerRoutes.GET("/collaborators", s.handler.getDocumentCollaborators)
+		}
+	}
 }
