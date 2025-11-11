@@ -24,9 +24,9 @@ type Document struct {
 }
 
 type DocumentPermission struct {
-	ID         string   `gorm:"primarykey;type:uuid;default:uuid_generate_v4()"`
-	DocumentID string   `gorm:"type:uuid;not null;uniqueIndex:idx_document_user_permission"`
-	Document   Document `gorm:"foreignKey:DocumentID;references:ID;constraint:OnDelete:CASCADE"`
-	UserID     string   `gorm:"type:uuid;not null;uniqueIndex:idx_document_user_permission"`
-	Role       Role     `gorm:"type:varchar(10);not null"`
+	ID         string `gorm:"primarykey;type:uuid;default:uuid_generate_v4()"`
+	DocumentID string `gorm:"type:uuid;not null;uniqueIndex:idx_document_user_permission"`
+	// Document   Document `gorm:"foreignKey:DocumentID;references:ID;constraint:OnDelete:CASCADE"`
+	UserID string `gorm:"type:uuid;not null;uniqueIndex:idx_document_user_permission"`
+	Role   Role   `gorm:"type:varchar(10);not null"`
 }

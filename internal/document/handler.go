@@ -16,6 +16,44 @@ func NewHTTPHandler(service *DocumentService) *HTTPHandler {
 	}
 }
 
+func (h *HTTPHandler) getDocumentCollaborators(c *gin.Context) {
+	documentID := c.GetString("documentID")
+
+	collaborators, err := h.documentService.getDocumentCollaborators(c.Request.Context(), documentID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, httpResponseMessage{
+			Message: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"collaborators": collaborators,
+	})
+}
+
+func (h *HTTPHandler) removeDocumentCollaborator(c *gin.Context) {
+	var body RemoveCollaboratorDTO
+
+	if err := c.Bind(&body); err != nil {
+		c.JSON(http.StatusBadRequest, httpResponseMessage{
+			Message: "bad request: " + err.Error(),
+		})
+		return
+	}
+
+	body.DocumentID = c.GetString("documentID")
+
+	if err := h.documentService.RemoveDocumentCollaborator(c.Request.Context(), body); err != nil {
+		c.JSON(http.StatusBadRequest, httpResponseMessage{
+			Message: "bad request: couldn't remove collaborator",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, httpResponseMessage{
+		Message: "collaborator removed",
+	})
+}
+
 func (h *HTTPHandler) addDocumentCollaborator(c *gin.Context) {
 	// Get values from middleware context
 	ownerID := c.GetString("userID")

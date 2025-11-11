@@ -1,10 +1,15 @@
 package internal
 
+type RemoveCollaboratorDTO struct {
+	DocumentID string
+	UserID     string `json:"user_id"`
+}
+
 type AddCollaboratorDTO struct {
-	DocumentID     string
-	OwnerID        string
-	CollaboratorID string `json:"user_id"`
-	Role           Role   `json:"role"`
+	DocumentID string
+	OwnerID    string
+	UserID     string `json:"user_id"`
+	Role       Role   `json:"role"`
 }
 
 type CreateDocumentDTO struct {

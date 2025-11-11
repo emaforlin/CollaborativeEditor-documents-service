@@ -9,10 +9,25 @@ type DocumentService struct {
 	repo DocumentRepository
 }
 
+func (s *DocumentService) getDocumentCollaborators(ctx context.Context, documentID string) ([]DocumentPermission, error) {
+	permissions := s.repo.GetDocumentPermissions(ctx, documentID)
+	if len(permissions) < 1 {
+		return nil, fmt.Errorf("no collaborators found")
+	}
+	return permissions, nil
+}
+
+func (s *DocumentService) RemoveDocumentCollaborator(ctx context.Context, data RemoveCollaboratorDTO) error {
+	if err := s.repo.RemoveDocumentPermission(ctx, data.UserID, data.DocumentID); err != nil {
+		return fmt.Errorf("failed to remove document collaborator: %w", err)
+	}
+	return nil
+}
+
 func (s *DocumentService) AddCollaboratorToDocument(ctx context.Context, data AddCollaboratorDTO) error {
 	if err := s.repo.CreateDocumentPermission(ctx, DocumentPermission{
 		DocumentID: data.DocumentID,
-		UserID:     data.CollaboratorID,
+		UserID:     data.UserID,
 		Role:       data.Role,
 	}); err != nil {
 		return fmt.Errorf("failed to add document collaborator: %w", err)

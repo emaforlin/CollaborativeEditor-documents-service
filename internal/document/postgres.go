@@ -15,6 +15,23 @@ type PostgresDocumentRepositoryImpl struct {
 	db *gorm.DB
 }
 
+// GetDocumentPermissions implements DocumentRepository
+func (r *PostgresDocumentRepositoryImpl) GetDocumentPermissions(ctx context.Context, documentID string) []DocumentPermission {
+	permissions, err := gorm.G[DocumentPermission](r.db).Where("document_id = ?", documentID).Find(ctx)
+	if err != nil {
+		return nil
+	}
+	return permissions
+}
+
+// RemoveDocumentPermission implements DocumentRepository
+func (r *PostgresDocumentRepositoryImpl) RemoveDocumentPermission(ctx context.Context, userID, documentID string) error {
+	if _, err := gorm.G[DocumentPermission](r.db).Where("document_id = ? AND user_id = ?", documentID, userID).Delete(ctx); err != nil {
+		return fmt.Errorf("failed deleting document permission record: %w", err)
+	}
+	return nil
+}
+
 // CreateDocumentPermission implements DocumentRepository
 func (r *PostgresDocumentRepositoryImpl) CreateDocumentPermission(ctx context.Context, permission DocumentPermission) error {
 	if err := gorm.G[DocumentPermission](r.db).Create(ctx, &permission); err != nil {

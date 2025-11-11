@@ -74,8 +74,10 @@ func (s *APIHTTPServer) setupRoutes() {
 		ownerRoutes := userRoutes.Group("/documents/:id")
 		ownerRoutes.Use(DocumentOwnershipMiddleware(s.handler.documentService))
 		{
+			ownerRoutes.GET("/", s.handler.getOneDocument)
+			ownerRoutes.DELETE("/collaborators", s.handler.removeDocumentCollaborator)
 			ownerRoutes.POST("/collaborators", s.handler.addDocumentCollaborator)
-			ownerRoutes.GET("", s.handler.getOneDocument)
+			ownerRoutes.GET("/collaborators", s.handler.getDocumentCollaborators)
 		}
 	}
 }
