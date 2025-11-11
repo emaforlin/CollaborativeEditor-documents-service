@@ -16,7 +16,7 @@ type MockRepository struct {
 // CreateDocument implements DocumentRepository.
 func (m *MockRepository) CreateDocument(document Document) (documentID string, err error) {
 	document.ID = uuid.NewString()
-	document.Content = pgtype.JSONB{Bytes: []byte(defaultTestDocumentJSON), Status: pgtype.Present}
+	document.Content = &pgtype.JSONB{Bytes: []byte(defaultTestDocumentJSON), Status: pgtype.Present}
 	m.documents = append(m.documents, document)
 	return document.ID, nil
 }
@@ -49,15 +49,16 @@ func NewMockRepository() *MockRepository {
 				ID:        "mock-1",
 				OwnerID:   "mock-fake-owner-1",
 				Title:     "Mock 1 - Test document",
-				Content:   pgtype.JSONB{Bytes: []byte(defaultTestDocumentJSON), Status: pgtype.Present},
+				Content:   &pgtype.JSONB{Bytes: []byte(defaultTestDocumentJSON), Status: pgtype.Present},
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
 			{
-				ID:        "mock-2",
-				OwnerID:   "mock-fake-owner-2",
-				Title:     "Mock 2 - Collaboration notes",
-				Content:   pgtype.JSONB{Bytes: []byte(`{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Collaboration meeting notes here"}]}]}`), Status: pgtype.Present},
+				ID:      "mock-2",
+				OwnerID: "mock-fake-owner-2",
+				Title:   "Mock 2 - Collaboration notes",
+				Content: &pgtype.JSONB{Bytes: []byte(defaultTestDocumentJSON), Status: pgtype.Present},
+
 				CreatedAt: time.Now().Add(-24 * time.Hour),
 				UpdatedAt: time.Now().Add(-2 * time.Hour),
 			},
@@ -65,7 +66,7 @@ func NewMockRepository() *MockRepository {
 				ID:        "mock-3",
 				OwnerID:   "mock-fake-owner-1",
 				Title:     "Mock 3 - Meeting minutes",
-				Content:   pgtype.JSONB{Bytes: []byte(`{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Meeting minutes from last week"}]}]}`), Status: pgtype.Present},
+				Content:   &pgtype.JSONB{Bytes: []byte(defaultTestDocumentJSON), Status: pgtype.Present},
 				CreatedAt: time.Now().Add(-48 * time.Hour),
 				UpdatedAt: time.Now().Add(-24 * time.Hour),
 			},
@@ -73,7 +74,7 @@ func NewMockRepository() *MockRepository {
 				ID:        "mock-4",
 				OwnerID:   "mock-fake-owner-3",
 				Title:     "Mock 4 - Project plan",
-				Content:   pgtype.JSONB{Bytes: []byte(`{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Project planning document"}]}]}`), Status: pgtype.Present},
+				Content:   &pgtype.JSONB{Bytes: []byte(defaultTestDocumentJSON), Status: pgtype.Present},
 				CreatedAt: time.Now().Add(-72 * time.Hour),
 				UpdatedAt: time.Now().Add(-6 * time.Hour),
 			},
@@ -81,7 +82,7 @@ func NewMockRepository() *MockRepository {
 				ID:        "mock-5",
 				OwnerID:   "mock-fake-owner-2",
 				Title:     "Mock 5 - Draft article",
-				Content:   pgtype.JSONB{Bytes: []byte(`{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Draft article content goes here"}]}]}`), Status: pgtype.Present},
+				Content:   &pgtype.JSONB{Bytes: []byte(defaultTestDocumentJSON), Status: pgtype.Present},
 				CreatedAt: time.Now().Add(-7 * 24 * time.Hour),
 				UpdatedAt: time.Now().Add(-3 * 24 * time.Hour),
 			},
@@ -89,7 +90,7 @@ func NewMockRepository() *MockRepository {
 				ID:        "mock-6",
 				OwnerID:   "mock-fake-owner-4",
 				Title:     "Mock 6 - Research notes",
-				Content:   pgtype.JSONB{Bytes: []byte(`{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Research notes and findings"}]}]}`), Status: pgtype.Present},
+				Content:   &pgtype.JSONB{Bytes: []byte(defaultTestDocumentJSON), Status: pgtype.Present},
 				CreatedAt: time.Now().Add(-30 * 24 * time.Hour),
 				UpdatedAt: time.Now().Add(-29 * 24 * time.Hour),
 			},

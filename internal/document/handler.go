@@ -16,15 +16,37 @@ func NewHTTPHandler(service *DocumentService) *HTTPHandler {
 	}
 }
 
-func (h *HTTPHandler) createDocument(c *gin.Context) {
-	// This will be a repeated logic, consider moving it to a middleware
-	ownerID := c.GetHeader("X-User-Id")
-	if ownerID == "" {
-		c.JSON(http.StatusForbidden, httpResponseMessage{
-			Message: "document owner not provided",
+func (h *HTTPHandler) addDocumentCollaborator(c *gin.Context) {
+	// Get values from middleware context
+	ownerID := c.GetString("userID")
+	documentID := c.GetString("documentID")
+
+	var body AddCollaboratorDTO
+	if err := c.Bind(&body); err != nil {
+		c.JSON(http.StatusBadRequest, httpResponseMessage{
+			Message: "bad request: " + err.Error(),
 		})
 		return
 	}
+
+	body.OwnerID = ownerID
+	body.DocumentID = documentID
+
+	if err := h.documentService.AddCollaboratorToDocument(c.Request.Context(), body); err != nil {
+		c.JSON(http.StatusBadRequest, httpResponseMessage{
+			Message: "bad request: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, httpResponseMessage{
+		Message: "document permission created",
+	})
+}
+
+func (h *HTTPHandler) createDocument(c *gin.Context) {
+	// Get userID from middleware context
+	ownerID := c.GetString("userID")
 
 	var body CreateDocumentDTO
 	if err := c.Bind(&body); err != nil {
@@ -51,13 +73,8 @@ func (h *HTTPHandler) createDocument(c *gin.Context) {
 }
 
 func (h *HTTPHandler) getDocuments(c *gin.Context) {
-	ownerID := c.GetHeader("X-User-Id")
-	if ownerID == "" {
-		c.JSON(http.StatusForbidden, httpResponseMessage{
-			Message: "document owner not provided",
-		})
-		return
-	}
+	// Get userID from middleware context
+	ownerID := c.GetString("userID")
 
 	documents, err := h.documentService.GetUserDocuments(c.Request.Context(), ownerID)
 	if err != nil {
@@ -72,29 +89,17 @@ func (h *HTTPHandler) getDocuments(c *gin.Context) {
 }
 
 func (h *HTTPHandler) getOneDocument(c *gin.Context) {
-	ownerID := c.GetHeader("X-User-Id")
-	if ownerID == "" {
-		c.JSON(http.StatusForbidden, httpResponseMessage{
-			Message: "document owner not provided",
+	// Get document from middleware context (already validated)
+	document, exists := c.Get("document")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, httpResponseMessage{
+			Message: "document not found in context",
 		})
 		return
 	}
 
-	documentID := c.Param("id")
-
-	foundDoc := h.documentService.GetOneDocument(c.Request.Context(), GetOneDocumentDTO{
-		DocumentID: documentID,
-		OwnerID:    ownerID,
-	})
-
-	if foundDoc == nil {
-		c.JSON(http.StatusNotFound, httpResponseMessage{
-			Message: "document not found",
-		})
-		return
-	}
 	c.JSON(http.StatusOK, gin.H{
-		"document": foundDoc,
+		"document": document,
 	})
 }
 

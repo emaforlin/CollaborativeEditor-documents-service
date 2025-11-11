@@ -9,10 +9,22 @@ type DocumentService struct {
 	repo DocumentRepository
 }
 
+func (s *DocumentService) AddCollaboratorToDocument(ctx context.Context, data AddCollaboratorDTO) error {
+	if err := s.repo.CreateDocumentPermission(ctx, DocumentPermission{
+		DocumentID: data.DocumentID,
+		UserID:     data.CollaboratorID,
+		Role:       data.Role,
+	}); err != nil {
+		return fmt.Errorf("failed to add document collaborator: %w", err)
+	}
+	return nil
+}
+
 func (s *DocumentService) CreateNewDocument(ctx context.Context, data CreateDocumentDTO) (string, error) {
 	docID, err := s.repo.CreateDocument(ctx, Document{
 		Title:   data.Title,
 		OwnerID: data.OwnerID,
+		Content: nil,
 	})
 	if err != nil {
 		return "", fmt.Errorf("failed to create a new document: %w", err)
