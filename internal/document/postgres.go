@@ -63,8 +63,18 @@ func (r *PostgresDocumentRepositoryImpl) CreateDocument(ctx context.Context, doc
 }
 
 // FindDocument implements DocumentRepository.
-func (r *PostgresDocumentRepositoryImpl) FindDocument(ctx context.Context, ownerID string, documentID string) *Document {
-	document, err := gorm.G[Document](r.db).Where("id = ? AND owner_id = ?", documentID, ownerID).First(ctx)
+func (r *PostgresDocumentRepositoryImpl) FindDocument(ctx context.Context, userID string, documentID string) *Document {
+	var document Document
+
+	// Query to find document if user is owner OR has permission
+	err := r.db.WithContext(ctx).
+		Select("DISTINCT documents.*").
+		Table("documents").
+		Joins("LEFT JOIN document_permissions ON documents.id = document_permissions.document_id").
+		Where("documents.id = ? AND (documents.owner_id = ? OR document_permissions.user_id = ?)",
+			documentID, userID, userID).
+		First(&document).Error
+
 	if err != nil {
 		return nil
 	}
@@ -72,8 +82,19 @@ func (r *PostgresDocumentRepositoryImpl) FindDocument(ctx context.Context, owner
 }
 
 // GetAllDocuments implements DocumentRepository.
-func (r *PostgresDocumentRepositoryImpl) GetAllDocuments(ctx context.Context, ownerID string) ([]Document, error) {
-	documents, err := gorm.G[Document](r.db).Where("owner_id = ?", ownerID).Find(ctx)
+func (r *PostgresDocumentRepositoryImpl) GetUserDocuments(ctx context.Context, userID string, userIsOwner bool) ([]Document, error) {
+	if userIsOwner {
+		documents, err := gorm.G[Document](r.db).Where("owner_id = ?", userID).Find(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("failed to find documents: %w", err)
+		}
+		return documents, nil
+	}
+
+	documents, err := gorm.G[Document](r.db).
+		Raw("SELECT DISTINCT documents.* FROM documents LEFT JOIN document_permissions ON documents.id = document_permissions.document_id WHERE documents.owner_id = ? OR document_permissions.user_id = ?", userID, userID).
+		Find(ctx)
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to find documents: %w", err)
 	}

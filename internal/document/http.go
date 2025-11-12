@@ -62,22 +62,27 @@ func (s *APIHTTPServer) setupRoutes() {
 	s.router.Use(gin.Logger())
 	s.router.Use(gin.Recovery())
 
-	// Routes that require user authentication
-	userRoutes := s.router.Group("/")
-	userRoutes.Use(UserHeaderMiddleware())
+	// ProtectedRoutes require the X-User-Id header
+	protectedRoutes := s.router.Group("/")
+	protectedRoutes.Use(UserHeaderMiddleware())
 	{
-		// Routes that only require user authentication (no document ownership check)
-		userRoutes.POST("/documents", s.handler.createDocument)
-		userRoutes.GET("/documents", s.handler.getDocuments)
+		protectedRoutes.GET("/documents", s.handler.getDocuments)
+		protectedRoutes.POST("/documents", s.handler.createDocument)
+	}
 
-		// Routes that require document ownership
-		ownerRoutes := userRoutes.Group("/documents/:id")
-		ownerRoutes.Use(DocumentOwnershipMiddleware(s.handler.documentService))
-		{
-			ownerRoutes.GET("/", s.handler.getOneDocument)
-			ownerRoutes.DELETE("/collaborators", s.handler.removeDocumentCollaborator)
-			ownerRoutes.POST("/collaborators", s.handler.addDocumentCollaborator)
-			ownerRoutes.GET("/collaborators", s.handler.getDocumentCollaborators)
-		}
+	// CollaboratorRoutes require the X-User-Id user to be a document collaborator
+	collaboratorRoutes := protectedRoutes.Group("/")
+	collaboratorRoutes.Use(CollaboratorAccessMiddleware(s.handler.documentService))
+	{
+		collaboratorRoutes.GET("/documents/:id", s.handler.getOneDocument)
+	}
+
+	// OwnershipRoutes require the X-User-Id user to be a document owner
+	ownerRoutes := protectedRoutes.Group("/documents/:id")
+	ownerRoutes.Use(DocumentOwnershipMiddleware(s.handler.documentService))
+	{
+		ownerRoutes.POST("/collaborators", s.handler.addDocumentCollaborator)
+		ownerRoutes.DELETE("/collaborators", s.handler.removeDocumentCollaborator)
+		ownerRoutes.GET("/collaborators", s.handler.getDocumentCollaborators)
 	}
 }
