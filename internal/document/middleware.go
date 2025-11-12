@@ -89,24 +89,20 @@ func CollaboratorAccessMiddleware(service *DocumentService) gin.HandlerFunc {
 			return
 		}
 
-		// TODO: Implement logic to check if user has access as owner or collaborator
-		// For now, this uses the same logic as DocumentOwnershipMiddleware
-		// You'll need to extend this when you implement the collaborator checking logic
-		foundDoc := service.GetOneDocument(c.Request.Context(), GetOneDocumentDTO{
+		document := service.GetOneDocument(c.Request.Context(), GetOneDocumentDTO{
 			DocumentID: documentID,
 			OwnerID:    userID.(string),
 		})
 
-		if foundDoc == nil {
+		if document == nil {
 			c.JSON(http.StatusNotFound, gin.H{
 				"message": "document not found or access denied",
 			})
 			c.Abort()
-			return
 		}
 
-		c.Set("document", foundDoc)
 		c.Set("documentID", documentID)
+		c.Set("document", document)
 		c.Next()
 	}
 }

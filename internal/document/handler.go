@@ -26,9 +26,7 @@ func (h *HTTPHandler) getDocumentCollaborators(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"collaborators": collaborators,
-	})
+	c.JSON(http.StatusOK, collaborators)
 }
 
 func (h *HTTPHandler) removeDocumentCollaborator(c *gin.Context) {
@@ -112,18 +110,16 @@ func (h *HTTPHandler) createDocument(c *gin.Context) {
 
 func (h *HTTPHandler) getDocuments(c *gin.Context) {
 	// Get userID from middleware context
-	ownerID := c.GetString("userID")
+	userID := c.GetString("userID")
 
-	documents, err := h.documentService.GetUserDocuments(c.Request.Context(), ownerID)
+	documents, err := h.documentService.GetUserDocuments(c.Request.Context(), userID, false)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, httpResponseMessage{
 			Message: "failed to fetch documents",
 		})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"documents": documents,
-	})
+	c.JSON(http.StatusOK, documents)
 }
 
 func (h *HTTPHandler) getOneDocument(c *gin.Context) {
@@ -136,9 +132,7 @@ func (h *HTTPHandler) getOneDocument(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"document": document,
-	})
+	c.JSON(http.StatusOK, document)
 }
 
 type httpResponseMessage struct {
