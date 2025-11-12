@@ -11,6 +11,6 @@ type DocumentRepository interface {
 
 	UpdateDocument(ctx context.Context, document Document) error
 	CreateDocument(ctx context.Context, document Document) (string, error)
-	GetAllDocuments(ctx context.Context, ownerID string) ([]Document, error)
-	FindDocument(ctx context.Context, ownerID, documentID string) *Document
+	GetUserDocuments(ctx context.Context, userID string, userIsOwner bool) ([]Document, error)
+	FindDocument(ctx context.Context, userID, documentID string) *Document
 }

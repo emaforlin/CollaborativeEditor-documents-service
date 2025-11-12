@@ -47,8 +47,8 @@ func (s *DocumentService) CreateNewDocument(ctx context.Context, data CreateDocu
 	return docID, nil
 }
 
-func (s *DocumentService) GetUserDocuments(ctx context.Context, ownerID string) ([]Document, error) {
-	documents, err := s.repo.GetAllDocuments(ctx, ownerID)
+func (s *DocumentService) GetUserDocuments(ctx context.Context, userID string, userIsOwner bool) ([]Document, error) {
+	documents, err := s.repo.GetUserDocuments(ctx, userID, userIsOwner)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch user documents: %w", err)
 	}
