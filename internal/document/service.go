@@ -9,6 +9,16 @@ type DocumentService struct {
 	repo DocumentRepository
 }
 
+func (s *DocumentService) UpdateDocumentMetadata(ctx context.Context, data UpdateDocumentDTO) error {
+	if err := s.repo.UpdateDocument(ctx, Document{
+		ID:    data.DocumentID,
+		Title: data.Title,
+	}); err != nil {
+		return fmt.Errorf("failed to update document metadata")
+	}
+	return nil
+}
+
 func (s *DocumentService) getDocumentCollaborators(ctx context.Context, documentID string) ([]DocumentPermission, error) {
 	permissions := s.repo.GetDocumentPermissions(ctx, documentID)
 	if len(permissions) < 1 {
@@ -36,6 +46,7 @@ func (s *DocumentService) AddCollaboratorToDocument(ctx context.Context, data Ad
 }
 
 func (s *DocumentService) CreateNewDocument(ctx context.Context, data CreateDocumentDTO) (string, error) {
+	var err error
 	docID, err := s.repo.CreateDocument(ctx, Document{
 		Title:   data.Title,
 		OwnerID: data.OwnerID,
@@ -44,6 +55,13 @@ func (s *DocumentService) CreateNewDocument(ctx context.Context, data CreateDocu
 	if err != nil {
 		return "", fmt.Errorf("failed to create a new document: %w", err)
 	}
+
+	s.repo.CreateDocumentPermission(ctx, DocumentPermission{
+		DocumentID: docID,
+		UserID:     data.OwnerID,
+		Role:       RoleOwner,
+	})
+
 	return docID, nil
 }
 
