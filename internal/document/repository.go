@@ -13,4 +13,6 @@ type DocumentRepository interface {
 	CreateDocument(ctx context.Context, document Document) (string, error)
 	GetUserDocuments(ctx context.Context, userID string, userIsOwner bool) ([]Document, error)
 	FindDocument(ctx context.Context, userID, documentID string) *Document
+
+	GetDocumentWithPermission(ctx context.Context, userID, documentID string) (*Document, string)
 }

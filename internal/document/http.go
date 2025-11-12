@@ -70,19 +70,18 @@ func (s *APIHTTPServer) setupRoutes() {
 		protectedRoutes.POST("/documents", s.handler.createDocument)
 	}
 
-	// CollaboratorRoutes require the X-User-Id user to be a document collaborator
-	collaboratorRoutes := protectedRoutes.Group("/")
-	collaboratorRoutes.Use(CollaboratorAccessMiddleware(s.handler.documentService))
+	// Document routes with specific permission requirements
+	documentRoutes := protectedRoutes.Group("/documents/:id")
 	{
-		collaboratorRoutes.GET("/documents/:id", s.handler.getOneDocument)
-	}
-
-	// OwnershipRoutes require the X-User-Id user to be a document owner
-	ownerRoutes := protectedRoutes.Group("/documents/:id")
-	ownerRoutes.Use(DocumentOwnershipMiddleware(s.handler.documentService))
-	{
-		ownerRoutes.POST("/collaborators", s.handler.addDocumentCollaborator)
-		ownerRoutes.DELETE("/collaborators", s.handler.removeDocumentCollaborator)
-		ownerRoutes.GET("/collaborators", s.handler.getDocumentCollaborators)
+		// Routes that require viewer access (read-only)
+		documentRoutes.GET("", RequireViewerAccess(s.handler.documentService), s.handler.getOneDocument)
+		
+		// Routes that require editor access (can modify content)
+		documentRoutes.PATCH("", RequireEditorAccess(s.handler.documentService), s.handler.updateDocument)
+		
+		// Routes that require owner access (can manage permissions)
+		documentRoutes.POST("/collaborators", RequireOwnerAccess(s.handler.documentService), s.handler.addDocumentCollaborator)
+		documentRoutes.DELETE("/collaborators", RequireOwnerAccess(s.handler.documentService), s.handler.removeDocumentCollaborator)
+		documentRoutes.GET("/collaborators", RequireOwnerAccess(s.handler.documentService), s.handler.getDocumentCollaborators)
 	}
 }

@@ -9,6 +9,11 @@ type DocumentService struct {
 	repo DocumentRepository
 }
 
+// GetDocumentWithPermission gets a specific document and the user's permission level
+func (s *DocumentService) GetDocumentWithPermission(ctx context.Context, userID, documentID string) (*Document, string) {
+	return s.repo.GetDocumentWithPermission(ctx, userID, documentID)
+}
+
 func (s *DocumentService) UpdateDocumentMetadata(ctx context.Context, data UpdateDocumentDTO) error {
 	if err := s.repo.UpdateDocument(ctx, Document{
 		ID:    data.DocumentID,
