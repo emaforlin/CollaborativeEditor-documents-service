@@ -15,6 +15,43 @@ type PostgresDocumentRepositoryImpl struct {
 	db *gorm.DB
 }
 
+// GetDocumentWithPermission implements DocumentRepository
+func (r *PostgresDocumentRepositoryImpl) GetDocumentWithPermission(ctx context.Context, userID, documentID string) (*Document, string) {
+	var document Document
+
+	// First check if user is owner
+	err := r.db.WithContext(ctx).
+		Where("id = ? AND owner_id = ?", documentID, userID).
+		First(&document).Error
+
+	if err == nil {
+		return &document, "owner"
+	}
+
+	// If not owner, check permissions table
+	var docPermission DocumentPermission
+	err = r.db.WithContext(ctx).
+		Joins("JOIN documents ON documents.id = document_permissions.document_id").
+		Where("document_permissions.document_id = ? AND document_permissions.user_id = ?", documentID, userID).
+		Select("document_permissions.role, documents.*").
+		First(&docPermission).Error
+
+	if err != nil {
+		return nil, ""
+	}
+
+	// Get the document
+	err = r.db.WithContext(ctx).
+		Where("id = ?", documentID).
+		First(&document).Error
+
+	if err != nil {
+		return nil, ""
+	}
+
+	return &document, string(docPermission.Role)
+}
+
 // GetDocumentPermissions implements DocumentRepository
 func (r *PostgresDocumentRepositoryImpl) GetDocumentPermissions(ctx context.Context, documentID string) []DocumentPermission {
 	permissions, err := gorm.G[DocumentPermission](r.db).Where("document_id = ?", documentID).Find(ctx)

@@ -1,5 +1,10 @@
 package internal
 
+type UpdateDocumentDTO struct {
+	DocumentID string
+	Title      string `json:"title"`
+}
+
 type RemoveCollaboratorDTO struct {
 	DocumentID string
 	UserID     string `json:"user_id"`

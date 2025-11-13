@@ -16,6 +16,30 @@ func NewHTTPHandler(service *DocumentService) *HTTPHandler {
 	}
 }
 
+func (h *HTTPHandler) updateDocument(c *gin.Context) {
+	documentID := c.GetString("documentID")
+
+	var body UpdateDocumentDTO
+	if err := c.Bind(&body); err != nil {
+		c.JSON(http.StatusBadRequest, httpResponseMessage{
+			Message: "failed to marshal body",
+		})
+		return
+	}
+	body.DocumentID = documentID
+
+	if err := h.documentService.UpdateDocumentMetadata(c.Request.Context(), body); err != nil {
+		c.JSON(http.StatusBadRequest, httpResponseMessage{
+			Message: "failed to update document",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "document metadata updated",
+	})
+}
+
 func (h *HTTPHandler) getDocumentCollaborators(c *gin.Context) {
 	documentID := c.GetString("documentID")
 
