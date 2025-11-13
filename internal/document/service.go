@@ -9,6 +9,10 @@ type DocumentService struct {
 	repo DocumentRepository
 }
 
+func (s *DocumentService) DeleteDocument(ctx context.Context, documentID string) error {
+	return s.repo.DeleteDocument(ctx, documentID)
+}
+
 // GetDocumentWithPermission gets a specific document and the user's permission level
 func (s *DocumentService) GetDocumentWithPermission(ctx context.Context, userID, documentID string) (*Document, string) {
 	return s.repo.GetDocumentWithPermission(ctx, userID, documentID)

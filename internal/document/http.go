@@ -75,11 +75,12 @@ func (s *APIHTTPServer) setupRoutes() {
 	{
 		// Routes that require viewer access (read-only)
 		documentRoutes.GET("", RequireViewerAccess(s.handler.documentService), s.handler.getOneDocument)
-		
+
 		// Routes that require editor access (can modify content)
 		documentRoutes.PATCH("", RequireEditorAccess(s.handler.documentService), s.handler.updateDocument)
-		
+
 		// Routes that require owner access (can manage permissions)
+		documentRoutes.DELETE("", RequireOwnerAccess(s.handler.documentService), s.handler.deleteDocument)
 		documentRoutes.POST("/collaborators", RequireOwnerAccess(s.handler.documentService), s.handler.addDocumentCollaborator)
 		documentRoutes.DELETE("/collaborators", RequireOwnerAccess(s.handler.documentService), s.handler.removeDocumentCollaborator)
 		documentRoutes.GET("/collaborators", RequireOwnerAccess(s.handler.documentService), s.handler.getDocumentCollaborators)

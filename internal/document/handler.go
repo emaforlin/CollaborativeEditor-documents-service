@@ -2,6 +2,7 @@ package internal
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,6 +15,26 @@ func NewHTTPHandler(service *DocumentService) *HTTPHandler {
 	return &HTTPHandler{
 		documentService: service,
 	}
+}
+
+func (h *HTTPHandler) deleteDocument(c *gin.Context) {
+	resCode := http.StatusOK
+	documentID := c.GetString("documentID")
+
+	if err := h.documentService.DeleteDocument(c.Request.Context(), documentID); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			resCode = http.StatusNotFound
+		} else {
+			resCode = http.StatusBadRequest
+		}
+		c.JSON(resCode, httpResponseMessage{
+			Message: err.Error(),
+		})
+		return
+	}
+	c.JSON(resCode, gin.H{
+		"message": "document deleted",
+	})
 }
 
 func (h *HTTPHandler) updateDocument(c *gin.Context) {

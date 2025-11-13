@@ -15,6 +15,18 @@ type PostgresDocumentRepositoryImpl struct {
 	db *gorm.DB
 }
 
+// DeleteDocument implements DocumentRepository
+func (r *PostgresDocumentRepositoryImpl) DeleteDocument(ctx context.Context, documentID string) error {
+	rows, err := gorm.G[Document](r.db).Where("id = ?", documentID).Delete(ctx)
+	if err != nil {
+		return fmt.Errorf("error deleting: %w", err)
+	}
+	if rows < 1 {
+		return fmt.Errorf("error deleting: document not found")
+	}
+	return nil
+}
+
 // GetDocumentWithPermission implements DocumentRepository
 func (r *PostgresDocumentRepositoryImpl) GetDocumentWithPermission(ctx context.Context, userID, documentID string) (*Document, string) {
 	var document Document
