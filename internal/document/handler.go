@@ -71,7 +71,10 @@ func (h *HTTPHandler) getDocumentCollaborators(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, collaborators)
+
+	// Convert to DTO response
+	response := ToCollaboratorResponseList(collaborators)
+	c.JSON(http.StatusOK, response)
 }
 
 func (h *HTTPHandler) removeDocumentCollaborator(c *gin.Context) {
@@ -164,7 +167,10 @@ func (h *HTTPHandler) getDocuments(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, documents)
+
+	// Convert to DTO response
+	response := ToDocumentResponseList(documents)
+	c.JSON(http.StatusOK, response)
 }
 
 func (h *HTTPHandler) getOneDocument(c *gin.Context) {
@@ -177,7 +183,17 @@ func (h *HTTPHandler) getOneDocument(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, document)
+	// Type assert and convert to DTO response
+	doc, ok := document.(*Document)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, httpResponseMessage{
+			Message: "invalid document type in context",
+		})
+		return
+	}
+
+	response := ToDocumentDetailResponse(doc)
+	c.JSON(http.StatusOK, response)
 }
 
 type httpResponseMessage struct {

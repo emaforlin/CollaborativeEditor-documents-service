@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/emaforlin/ce-document-service/pkg/config"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -61,6 +62,10 @@ func NewAPIServer(documentService *DocumentService) (*APIHTTPServer, error) {
 func (s *APIHTTPServer) setupRoutes() {
 	s.router.Use(gin.Logger())
 	s.router.Use(gin.Recovery())
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization", "X-User-Id"}
+	s.router.Use(cors.New(config))
 
 	// ProtectedRoutes require the X-User-Id header
 	protectedRoutes := s.router.Group("/")
