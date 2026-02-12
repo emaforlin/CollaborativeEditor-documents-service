@@ -54,24 +54,24 @@ func (s *DocumentService) AddCollaboratorToDocument(ctx context.Context, data Ad
 	return nil
 }
 
-func (s *DocumentService) CreateNewDocument(ctx context.Context, data CreateDocumentDTO) (string, error) {
+func (s *DocumentService) CreateNewDocument(ctx context.Context, data CreateDocumentDTO) (*Document, error) {
 	var err error
-	docID, err := s.repo.CreateDocument(ctx, Document{
+	doc, err := s.repo.CreateDocument(ctx, Document{
 		Title:   data.Title,
 		OwnerID: data.OwnerID,
 		Content: nil,
 	})
 	if err != nil {
-		return "", fmt.Errorf("failed to create a new document: %w", err)
+		return nil, fmt.Errorf("failed to create a new document: %w", err)
 	}
 
 	s.repo.CreateDocumentPermission(ctx, DocumentPermission{
-		DocumentID: docID,
+		DocumentID: doc.ID,
 		UserID:     data.OwnerID,
 		Role:       RoleOwner,
 	})
 
-	return docID, nil
+	return doc, nil
 }
 
 func (s *DocumentService) GetUserDocuments(ctx context.Context, userID string, userIsOwner bool) ([]Document, error) {

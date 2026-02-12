@@ -141,7 +141,7 @@ func (h *HTTPHandler) createDocument(c *gin.Context) {
 	}
 
 	body.OwnerID = ownerID
-	documentID, err := h.documentService.CreateNewDocument(c.Request.Context(), body)
+	document, err := h.documentService.CreateNewDocument(c.Request.Context(), body)
 	if err != nil {
 		// Log the error for debugging purposes
 		c.Error(err)
@@ -151,9 +151,9 @@ func (h *HTTPHandler) createDocument(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"document_id": documentID,
-	})
+	response := ToDocumentResponse(document)
+
+	c.JSON(http.StatusCreated, response)
 }
 
 func (h *HTTPHandler) getDocuments(c *gin.Context) {

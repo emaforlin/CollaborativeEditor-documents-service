@@ -11,7 +11,7 @@ type DocumentRepository interface {
 
 	DeleteDocument(ctx context.Context, documentID string) error
 	UpdateDocument(ctx context.Context, document Document) error
-	CreateDocument(ctx context.Context, document Document) (string, error)
+	CreateDocument(ctx context.Context, document Document) (*Document, error)
 	GetUserDocuments(ctx context.Context, userID string, userIsOwner bool) ([]Document, error)
 	FindDocument(ctx context.Context, userID, documentID string) *Document
 

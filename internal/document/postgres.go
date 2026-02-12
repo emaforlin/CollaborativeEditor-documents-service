@@ -104,11 +104,11 @@ func (r *PostgresDocumentRepositoryImpl) UpdateDocument(ctx context.Context, doc
 }
 
 // CreateDocument implements DocumentRepository.
-func (r *PostgresDocumentRepositoryImpl) CreateDocument(ctx context.Context, document Document) (string, error) {
+func (r *PostgresDocumentRepositoryImpl) CreateDocument(ctx context.Context, document Document) (*Document, error) {
 	if err := gorm.G[Document](r.db).Create(ctx, &document); err != nil {
-		return "", fmt.Errorf("failed to create document: %w", err)
+		return nil, fmt.Errorf("failed to create document: %w", err)
 	}
-	return document.ID, nil
+	return &document, nil
 }
 
 // FindDocument implements DocumentRepository.
